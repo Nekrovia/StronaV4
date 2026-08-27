@@ -30,15 +30,37 @@ if (form && form.topic) {
   }
 }
 if (form) {
+  const CONTACT_EMAIL = 'szymonemps7@gmail.com';
+  const sendOptions = document.getElementById('send-options');
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const name = form.name.value.trim();
     const contact = form.contact.value.trim();
     const message = form.message.value.trim();
     const topic = form.topic ? form.topic.value : '';
-    const subject = encodeURIComponent(`Zapytanie ze strony${topic ? ' — ' + topic : ''}`);
-    const body = encodeURIComponent(`Imię i nazwisko: ${name}\nKontakt: ${contact}${topic ? '\nDotyczy: ' + topic : ''}\n\nWiadomość:\n${message}`);
-    window.location.href = `mailto:szymonemps7@gmail.com?subject=${subject}&body=${body}`;
+    const subject = `Zapytanie ze strony${topic ? ' — ' + topic : ''}`;
+    const bodyText = `Imię i nazwisko: ${name}\nKontakt: ${contact}${topic ? '\nDotyczy: ' + topic : ''}\n\nWiadomość:\n${message}`;
+
+    if (!sendOptions) return;
+
+    const gmailLink = sendOptions.querySelector('[data-gmail]');
+    const mailtoLink = sendOptions.querySelector('[data-mailto]');
+    const copyBtn = sendOptions.querySelector('[data-copy]');
+
+    gmailLink.href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(CONTACT_EMAIL)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
+    mailtoLink.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
+
+    const copyLabel = copyBtn.textContent;
+    copyBtn.onclick = () => {
+      const fullText = `Do: ${CONTACT_EMAIL}\nTemat: ${subject}\n\n${bodyText}`;
+      navigator.clipboard.writeText(fullText).then(() => {
+        copyBtn.textContent = 'Skopiowano ✓';
+        setTimeout(() => { copyBtn.textContent = copyLabel; }, 2500);
+      });
+    };
+
+    sendOptions.hidden = false;
+    sendOptions.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   });
 }
 

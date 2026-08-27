@@ -219,6 +219,13 @@ ul{margin:0;padding:0;list-style:none;}
 .contact-form input:focus,.contact-form select:focus,.contact-form textarea:focus{outline:2px solid var(--accent);}
 .form-note{font-size:.75rem;color:var(--ink-soft);margin:0;text-align:center;}
 
+.send-options{
+  display:flex;flex-direction:column;gap:10px;margin-top:6px;padding-top:16px;border-top:1px dashed var(--line);
+}
+.send-options-title{font-size:.85rem;font-weight:600;margin:0 0 2px;text-align:center;}
+.send-options .btn{font-size:.88rem;padding:11px 20px;}
+.send-options button.btn{font-family:inherit;}
+
 .map-section{line-height:0;}
 .map-section iframe{width:100%;height:380px;border:0;display:block;}
 

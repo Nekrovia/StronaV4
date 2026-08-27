@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=4" />
+<link rel="stylesheet" href="css/style.css?v=5" />
 </head>
 <body>
 
@@ -99,7 +99,13 @@
         <textarea name="message" rows="4" required></textarea>
       </label>
       <button type="submit" class="btn btn-primary btn-block">Wyślij zapytanie</button>
-      <p class="form-note">Formularz otworzy Twój program pocztowy z gotową wiadomością do nas.</p>
+      <p class="form-note">Po kliknięciu wybierzesz, jak wysłać wiadomość.</p>
+      <div class="send-options" id="send-options" hidden>
+        <p class="send-options-title">Jak wysłać wiadomość?</p>
+        <a href="#" target="_blank" rel="noopener" data-gmail class="btn btn-outline btn-block">Otwórz w Gmailu</a>
+        <a href="#" data-mailto class="btn btn-outline btn-block">Otwórz w domyślnym programie pocztowym</a>
+        <button type="button" data-copy class="btn btn-outline btn-block">Skopiuj treść wiadomości</button>
+      </div>
     </form>
   </div>
 </section>
@@ -160,6 +166,6 @@
   </div>
 </footer>
 
-<script src="js/script.js?v=4"></script>
+<script src="js/script.js?v=5"></script>
 </body>
 </html>
