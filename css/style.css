@@ -15,6 +15,7 @@
 
 *,*::before,*::after{box-sizing:border-box;}
 html{scroll-behavior:smooth;}
+html,body{max-width:100%;overflow-x:hidden;}
 body{
   margin:0;
   font-family:'Inter',system-ui,sans-serif;
@@ -23,6 +24,7 @@ body{
   line-height:1.7;
   -webkit-font-smoothing:antialiased;
 }
+img,video,iframe{max-width:100%;}
 h1,h2,h3,h4{
   font-family:'Manrope',sans-serif;
   line-height:1.2;
@@ -226,6 +228,7 @@ section[id]{scroll-margin-top:80px;}
 .contact-form{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:28px;display:flex;flex-direction:column;gap:16px;box-shadow:var(--shadow);}
 .contact-form label{font-size:.85rem;font-weight:600;display:flex;flex-direction:column;gap:6px;}
 .contact-form input,.contact-form select,.contact-form textarea{
+  width:100%;max-width:100%;
   font-family:inherit;font-size:.95rem;padding:11px 13px;border:1px solid var(--line);border-radius:10px;resize:vertical;background:var(--paper-alt);
 }
 .contact-form input:focus,.contact-form select:focus,.contact-form textarea:focus{outline:2px solid var(--accent);}
