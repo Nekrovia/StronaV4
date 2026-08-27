@@ -3,8 +3,10 @@ if (yearEl) yearEl.textContent = new Date().getFullYear();
 
 const burger = document.getElementById('burger');
 const nav = document.getElementById('nav');
+const navClose = document.getElementById('nav-close');
 if (burger && nav) {
   burger.addEventListener('click', () => nav.classList.toggle('open'));
+  if (navClose) navClose.addEventListener('click', () => nav.classList.remove('open'));
   nav.querySelectorAll(':scope > a').forEach(link => {
     link.addEventListener('click', () => nav.classList.remove('open'));
   });
