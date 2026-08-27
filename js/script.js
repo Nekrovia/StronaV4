@@ -38,7 +38,7 @@ if (form) {
     const topic = form.topic ? form.topic.value : '';
     const subject = encodeURIComponent(`Zapytanie ze strony${topic ? ' — ' + topic : ''}`);
     const body = encodeURIComponent(`Imię i nazwisko: ${name}\nKontakt: ${contact}${topic ? '\nDotyczy: ' + topic : ''}\n\nWiadomość:\n${message}`);
-    window.location.href = `mailto:Pietrzak.spzoo@gmail.com?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:szymonemps7@gmail.com?subject=${subject}&body=${body}`;
   });
 }
 
