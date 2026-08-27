@@ -31,8 +31,31 @@ if (form && form.topic) {
 }
 if (form) {
   const CONTACT_EMAIL = 'szymonemps7@gmail.com';
+  const WEB3FORMS_KEY = 'eb22ca95-1fa3-4452-9559-a6b220d038bb';
   const sendOptions = document.getElementById('send-options');
   const statusMsg = document.getElementById('form-status');
+  const submitBtn = form.querySelector('button[type="submit"]');
+
+  function showFallback(subject, bodyText) {
+    if (!sendOptions) return;
+    const gmailLink = sendOptions.querySelector('[data-gmail]');
+    const mailtoLink = sendOptions.querySelector('[data-mailto]');
+    const copyBtn = sendOptions.querySelector('[data-copy]');
+    const mailtoUrl = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
+
+    gmailLink.href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(CONTACT_EMAIL)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
+    mailtoLink.href = mailtoUrl;
+    const copyLabel = copyBtn.textContent;
+    copyBtn.onclick = () => {
+      const fullText = `Do: ${CONTACT_EMAIL}\nTemat: ${subject}\n\n${bodyText}`;
+      navigator.clipboard.writeText(fullText).then(() => {
+        copyBtn.textContent = 'Skopiowano ✓';
+        setTimeout(() => { copyBtn.textContent = copyLabel; }, 2500);
+      });
+    };
+    sendOptions.hidden = false;
+    sendOptions.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -42,54 +65,37 @@ if (form) {
     const topic = form.topic ? form.topic.value : '';
     const subject = `Zapytanie ze strony${topic ? ' — ' + topic : ''}`;
     const bodyText = `Imię i nazwisko: ${name}\nKontakt: ${contact}${topic ? '\nDotyczy: ' + topic : ''}\n\nWiadomość:\n${message}`;
-    const mailtoUrl = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
 
-    if (!sendOptions) return;
+    if (submitBtn) submitBtn.disabled = true;
+    if (statusMsg) statusMsg.textContent = 'Wysyłanie…';
+    if (sendOptions) sendOptions.hidden = true;
 
-    const gmailLink = sendOptions.querySelector('[data-gmail]');
-    const mailtoLink = sendOptions.querySelector('[data-mailto]');
-    const copyBtn = sendOptions.querySelector('[data-copy]');
-
-    gmailLink.href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(CONTACT_EMAIL)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
-    mailtoLink.href = mailtoUrl;
-
-    const copyLabel = copyBtn.textContent;
-    copyBtn.onclick = () => {
-      const fullText = `Do: ${CONTACT_EMAIL}\nTemat: ${subject}\n\n${bodyText}`;
-      navigator.clipboard.writeText(fullText).then(() => {
-        copyBtn.textContent = 'Skopiowano ✓';
-        setTimeout(() => { copyBtn.textContent = copyLabel; }, 2500);
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        access_key: WEB3FORMS_KEY,
+        subject,
+        name,
+        email: contact,
+        Temat: topic || '(nie wybrano)',
+        Wiadomosc: message,
+        from_name: 'Formularz — Pietrzak Sp. z o.o.'
+      })
+    })
+      .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+      .then(({ ok, data }) => {
+        if (!ok || !data.success) throw new Error(data.message || 'submit_failed');
+        if (statusMsg) statusMsg.textContent = 'Wysłano — dziękujemy, odezwiemy się wkrótce!';
+        form.reset();
+      })
+      .catch(() => {
+        if (statusMsg) statusMsg.textContent = 'Nie udało się wysłać automatycznie — wybierz inny sposób:';
+        showFallback(subject, bodyText);
+      })
+      .finally(() => {
+        if (submitBtn) submitBtn.disabled = false;
       });
-    };
-
-    // Try the silent, single-click path first: trigger the default mail app.
-    // If the OS/browser has one configured, the tab loses focus almost
-    // immediately as the app opens. Only if that DOESN'T happen within
-    // ~1.2s do we assume there's no mail app and reveal the alternatives.
-    let handled = false;
-    const markHandled = () => { handled = true; cleanup(); };
-    const cleanup = () => {
-      window.removeEventListener('blur', markHandled);
-      document.removeEventListener('visibilitychange', onVisibility);
-    };
-    const onVisibility = () => { if (document.hidden) markHandled(); };
-
-    window.addEventListener('blur', markHandled);
-    document.addEventListener('visibilitychange', onVisibility);
-    if (statusMsg) statusMsg.textContent = 'Otwieram program pocztowy…';
-
-    window.location.href = mailtoUrl;
-
-    setTimeout(() => {
-      cleanup();
-      if (handled) {
-        if (statusMsg) statusMsg.textContent = '';
-        return;
-      }
-      if (statusMsg) statusMsg.textContent = 'Nie udało się otworzyć programu pocztowego — wybierz inny sposób:';
-      sendOptions.hidden = false;
-      sendOptions.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 1200);
   });
 }
 
