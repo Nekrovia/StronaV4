@@ -30,32 +30,9 @@ if (form && form.topic) {
   }
 }
 if (form) {
-  const CONTACT_EMAIL = 'szymonemps7@gmail.com';
   const WEB3FORMS_KEY = 'eb22ca95-1fa3-4452-9559-a6b220d038bb';
-  const sendOptions = document.getElementById('send-options');
   const statusMsg = document.getElementById('form-status');
   const submitBtn = form.querySelector('button[type="submit"]');
-
-  function showFallback(subject, bodyText) {
-    if (!sendOptions) return;
-    const gmailLink = sendOptions.querySelector('[data-gmail]');
-    const mailtoLink = sendOptions.querySelector('[data-mailto]');
-    const copyBtn = sendOptions.querySelector('[data-copy]');
-    const mailtoUrl = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
-
-    gmailLink.href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(CONTACT_EMAIL)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
-    mailtoLink.href = mailtoUrl;
-    const copyLabel = copyBtn.textContent;
-    copyBtn.onclick = () => {
-      const fullText = `Do: ${CONTACT_EMAIL}\nTemat: ${subject}\n\n${bodyText}`;
-      navigator.clipboard.writeText(fullText).then(() => {
-        copyBtn.textContent = 'Skopiowano ✓';
-        setTimeout(() => { copyBtn.textContent = copyLabel; }, 2500);
-      });
-    };
-    sendOptions.hidden = false;
-    sendOptions.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -64,11 +41,9 @@ if (form) {
     const message = form.message.value.trim();
     const topic = form.topic ? form.topic.value : '';
     const subject = `Zapytanie ze strony${topic ? ' — ' + topic : ''}`;
-    const bodyText = `Imię i nazwisko: ${name}\nKontakt: ${contact}${topic ? '\nDotyczy: ' + topic : ''}\n\nWiadomość:\n${message}`;
 
     if (submitBtn) submitBtn.disabled = true;
-    if (statusMsg) statusMsg.textContent = 'Wysyłanie…';
-    if (sendOptions) sendOptions.hidden = true;
+    if (statusMsg) { statusMsg.textContent = 'Wysyłanie…'; statusMsg.classList.remove('error'); }
 
     fetch('https://api.web3forms.com/submit', {
       method: 'POST',
@@ -90,8 +65,10 @@ if (form) {
         form.reset();
       })
       .catch(() => {
-        if (statusMsg) statusMsg.textContent = 'Nie udało się wysłać automatycznie — wybierz inny sposób:';
-        showFallback(subject, bodyText);
+        if (statusMsg) {
+          statusMsg.textContent = 'Nie udało się wysłać — zadzwoń do nas albo spróbuj ponownie za chwilę.';
+          statusMsg.classList.add('error');
+        }
       })
       .finally(() => {
         if (submitBtn) submitBtn.disabled = false;
