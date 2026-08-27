@@ -32,6 +32,8 @@ if (form && form.topic) {
 if (form) {
   const CONTACT_EMAIL = 'szymonemps7@gmail.com';
   const sendOptions = document.getElementById('send-options');
+  const statusMsg = document.getElementById('form-status');
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const name = form.name.value.trim();
@@ -40,6 +42,7 @@ if (form) {
     const topic = form.topic ? form.topic.value : '';
     const subject = `Zapytanie ze strony${topic ? ' — ' + topic : ''}`;
     const bodyText = `Imię i nazwisko: ${name}\nKontakt: ${contact}${topic ? '\nDotyczy: ' + topic : ''}\n\nWiadomość:\n${message}`;
+    const mailtoUrl = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
 
     if (!sendOptions) return;
 
@@ -48,7 +51,7 @@ if (form) {
     const copyBtn = sendOptions.querySelector('[data-copy]');
 
     gmailLink.href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(CONTACT_EMAIL)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
-    mailtoLink.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
+    mailtoLink.href = mailtoUrl;
 
     const copyLabel = copyBtn.textContent;
     copyBtn.onclick = () => {
@@ -59,8 +62,34 @@ if (form) {
       });
     };
 
-    sendOptions.hidden = false;
-    sendOptions.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    // Try the silent, single-click path first: trigger the default mail app.
+    // If the OS/browser has one configured, the tab loses focus almost
+    // immediately as the app opens. Only if that DOESN'T happen within
+    // ~1.2s do we assume there's no mail app and reveal the alternatives.
+    let handled = false;
+    const markHandled = () => { handled = true; cleanup(); };
+    const cleanup = () => {
+      window.removeEventListener('blur', markHandled);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+    const onVisibility = () => { if (document.hidden) markHandled(); };
+
+    window.addEventListener('blur', markHandled);
+    document.addEventListener('visibilitychange', onVisibility);
+    if (statusMsg) statusMsg.textContent = 'Otwieram program pocztowy…';
+
+    window.location.href = mailtoUrl;
+
+    setTimeout(() => {
+      cleanup();
+      if (handled) {
+        if (statusMsg) statusMsg.textContent = '';
+        return;
+      }
+      if (statusMsg) statusMsg.textContent = 'Nie udało się otworzyć programu pocztowego — wybierz inny sposób:';
+      sendOptions.hidden = false;
+      sendOptions.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 1200);
   });
 }
 
