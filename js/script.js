@@ -47,18 +47,22 @@ if (form) {
     if (submitBtn) submitBtn.disabled = true;
     if (statusMsg) { statusMsg.textContent = 'Wysyłanie…'; statusMsg.classList.remove('error'); }
 
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact);
+    const payload = {
+      access_key: WEB3FORMS_KEY,
+      subject,
+      name,
+      'Telefon lub e-mail': contact,
+      Temat: topic || '(nie wybrano)',
+      Wiadomosc: message,
+      from_name: 'Formularz — Pietrzak Sp. z o.o.'
+    };
+    if (isEmail) payload.email = contact;
+
     fetch('https://api.web3forms.com/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({
-        access_key: WEB3FORMS_KEY,
-        subject,
-        name,
-        email: contact,
-        Temat: topic || '(nie wybrano)',
-        Wiadomosc: message,
-        from_name: 'Formularz — Pietrzak Sp. z o.o.'
-      })
+      body: JSON.stringify(payload)
     })
       .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
       .then(({ ok, data }) => {
